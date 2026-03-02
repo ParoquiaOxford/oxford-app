@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')!).render(
     <StyledEngineProvider injectFirst>
       <ThemeModeProvider>
         <AuthProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={import.meta.env.BASE_URL}>
             <App />
           </BrowserRouter>
         </AuthProvider>

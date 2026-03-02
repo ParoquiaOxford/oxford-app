@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/aparecida-oxford-app/',
+  base: '/oxford-app/',
   plugins: [react()],
   server: {
     proxy: {
