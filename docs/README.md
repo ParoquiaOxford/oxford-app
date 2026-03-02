@@ -34,6 +34,8 @@ Exemplo:
 - `https://seu-backend.onrender.com/api`
 - `https://api.seudominio.com/api`
 
+Não use a URL do GitHub Pages (ex.: `https://paroquiaoxford.github.io/oxford-app/api`), pois o Pages hospeda apenas arquivos estáticos e não executa API Node/Express.
+
 Sem essa variável, o login exibirá erro de API não configurada para produção.
 
 No GitHub Actions, configure em **Settings > Secrets and variables > Actions**:
