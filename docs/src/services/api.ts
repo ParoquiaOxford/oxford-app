@@ -34,10 +34,19 @@ interface CreateSongPayload {
   lyrics: string
 }
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api'
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() ?? ''
+const isProductionBuild = import.meta.env.PROD
+
+const apiBaseUrl = configuredApiBaseUrl || (isProductionBuild ? '' : 'http://localhost:4000/api')
+
+function ensureApiConfigured() {
+  if (!apiBaseUrl) {
+    throw new Error('API não configurada para produção. Defina VITE_API_BASE_URL com a URL pública do backend.')
+  }
+}
 
 export const api: AxiosInstance = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: apiBaseUrl || undefined,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -64,6 +73,8 @@ export async function fetchDocuments(): Promise<IDocument[]> {
 }
 
 export async function loginWithMongo(payload: LoginRequest): Promise<LoginResponse> {
+  ensureApiConfigured()
+
   try {
     const response = await api.post<LoginResponse>('/auth/login', payload)
 
@@ -77,7 +88,7 @@ export async function loginWithMongo(payload: LoginRequest): Promise<LoginRespon
     }
 
     if (axiosError.code === 'ERR_NETWORK') {
-      throw new Error('Servidor de autenticação indisponível. Inicie o backend em docs/server.')
+      throw new Error('Servidor de autenticação indisponível. Configure VITE_API_BASE_URL para o backend publicado.')
     }
 
     if (axiosError.response?.status === 404) {
@@ -89,6 +100,8 @@ export async function loginWithMongo(payload: LoginRequest): Promise<LoginRespon
 }
 
 export async function fetchCurrentPlaylist(): Promise<IPlaylist> {
+  ensureApiConfigured()
+
   try {
     const response = await api.get<SongsResponse>('/playlist/songs')
 
@@ -110,6 +123,8 @@ export async function fetchCurrentPlaylist(): Promise<IPlaylist> {
 }
 
 export async function addSongToPlaylist(payload: CreateSongPayload): Promise<IPlaylist> {
+  ensureApiConfigured()
+
   try {
     const response = await api.post<PlaylistResponse>('/playlist/songs', payload)
 
@@ -131,6 +146,8 @@ export async function addSongToPlaylist(payload: CreateSongPayload): Promise<IPl
 }
 
 export async function deleteSongFromPlaylist(songId: number): Promise<IPlaylist> {
+  ensureApiConfigured()
+
   try {
     const response = await api.delete<PlaylistResponse>(`/playlist/songs/${songId}`)
 
@@ -152,6 +169,8 @@ export async function deleteSongFromPlaylist(songId: number): Promise<IPlaylist>
 }
 
 export async function generatePowerPoint(playlistName: string, songs: ISong[]): Promise<Blob> {
+  ensureApiConfigured()
+
   const response = await api.post('/ppt/generate', { playlistName, songs }, { responseType: 'blob' })
 
   return response.data as Blob

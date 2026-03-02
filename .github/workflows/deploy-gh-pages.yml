@@ -38,6 +38,8 @@ jobs:
 
       - name: Build project
         working-directory: docs
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
       - name: Ensure SPA fallback page
