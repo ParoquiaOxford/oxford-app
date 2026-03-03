@@ -1,4 +1,5 @@
 import PptxGenJS from 'pptxgenjs'
+import cornerBrandLogo from '../img/brasao_aparecida_oxford_fb_G0.png'
 const PPT_SETTINGS_KEY = 'oxford.pptSettings'
 
 const DEFAULT_CONFIG = {
@@ -52,6 +53,28 @@ const DEFAULT_CONFIG = {
     },
     slide_capa: {
       habilitar: true,
+    },
+    logo_canto: {
+      habilitar: true,
+      mostrar_no_primeiro_slide: false,
+      x_cm: 32.51,
+      y_cm: 17.08,
+      largura_cm: 1.23,
+      altura_cm: 1.91,
+      rotacao_graus: 0,
+    },
+    slide_separador: {
+      habilitar: true,
+      fundo: '#FFFFFF',
+      logo: {
+        x_cm: 12.1,
+        y_cm: 2.65,
+        largura_cm: 18.46,
+        altura_cm: 11.86,
+        escala_largura_percent: 114,
+        escala_altura_percent: 110,
+        rotacao_graus: 0,
+      },
     },
   },
   estilos_slides: {
@@ -494,6 +517,8 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
   const backgroundImageConfig = layoutGlobal.imagem_fundo ?? DEFAULT_CONFIG.layout_global.imagem_fundo
   const textAreaConfig = layoutGlobal.area_texto ?? DEFAULT_CONFIG.layout_global.area_texto
   const coverConfig = layoutGlobal.slide_capa ?? DEFAULT_CONFIG.layout_global.slide_capa
+  const cornerLogoConfig = layoutGlobal.logo_canto ?? DEFAULT_CONFIG.layout_global.logo_canto
+  const separatorConfig = layoutGlobal.slide_separador ?? DEFAULT_CONFIG.layout_global.slide_separador
   const styles = config.estilos_slides ?? DEFAULT_CONFIG.estilos_slides
   const openingStyle = styles.abertura ?? DEFAULT_CONFIG.estilos_slides.abertura
   const contentStyle = styles.conteudo_leitura_canto ?? DEFAULT_CONFIG.estilos_slides.conteudo_leitura_canto
@@ -540,6 +565,30 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
   const baseAlign = resolveAlign(settings.textAlign ?? fonts.alinhamento)
   const contentBox = resolveTextAreaBox(pptx.layout, appliedMargins, textAreaConfig)
   const backgroundImageBox = resolveBackgroundImageBox(pptx.layout, backgroundImageConfig)
+  const cornerLogoX = cmToInches(cornerLogoConfig?.x_cm)
+  const cornerLogoY = cmToInches(cornerLogoConfig?.y_cm)
+  const cornerLogoW = cmToInches(cornerLogoConfig?.largura_cm)
+  const cornerLogoH = cmToInches(cornerLogoConfig?.altura_cm)
+  const cornerLogoRotate = Number(cornerLogoConfig?.rotacao_graus ?? 0)
+  const showCornerLogo = Boolean(cornerLogoConfig?.habilitar)
+  const showCornerOnFirstSlide = Boolean(cornerLogoConfig?.mostrar_no_primeiro_slide)
+
+  const separatorLogoX = cmToInches(separatorConfig?.logo?.x_cm)
+  const separatorLogoY = cmToInches(separatorConfig?.logo?.y_cm)
+  const separatorLogoW = cmToInches(separatorConfig?.logo?.largura_cm)
+  const separatorLogoH = cmToInches(separatorConfig?.logo?.altura_cm)
+  const separatorScaleWidth = Number(separatorConfig?.logo?.escala_largura_percent ?? 100)
+  const separatorScaleHeight = Number(separatorConfig?.logo?.escala_altura_percent ?? 100)
+  const separatorLogoRotate = Number(separatorConfig?.logo?.rotacao_graus ?? 0)
+  const separatorBgColor = appliedBackgroundColor
+
+  const separatorLogoScaledW = Number.isFinite(separatorLogoW)
+    ? separatorLogoW * (Number.isFinite(separatorScaleWidth) ? separatorScaleWidth / 100 : 1)
+    : separatorLogoW
+  const separatorLogoScaledH = Number.isFinite(separatorLogoH)
+    ? separatorLogoH * (Number.isFinite(separatorScaleHeight) ? separatorScaleHeight / 100 : 1)
+    : separatorLogoH
+  let createdSlides = 0
 
   const applySlideBackground = (slide) => {
     slide.background = { color: appliedBackgroundColor }
@@ -549,6 +598,19 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
         ...backgroundImageBox,
       })
     }
+
+    if (showCornerLogo && (createdSlides > 0 || showCornerOnFirstSlide)) {
+      slide.addImage({
+        path: cornerBrandLogo,
+        x: cornerLogoX,
+        y: cornerLogoY,
+        w: cornerLogoW,
+        h: cornerLogoH,
+        rotate: cornerLogoRotate,
+      })
+    }
+
+    createdSlides += 1
   }
 
   if (Boolean(coverConfig?.habilitar)) {
@@ -619,9 +681,18 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
       })
     })
 
-    if (songIndex < songs.length - 1) {
+    if (songIndex < songs.length - 1 && Boolean(separatorConfig?.habilitar)) {
       const separatorSlide = pptx.addSlide()
-      applySlideBackground(separatorSlide)
+      separatorSlide.background = { color: separatorBgColor }
+      separatorSlide.addImage({
+        path: cornerBrandLogo,
+        x: separatorLogoX,
+        y: separatorLogoY,
+        w: separatorLogoScaledW,
+        h: separatorLogoScaledH,
+        rotate: separatorLogoRotate,
+      })
+      createdSlides += 1
     }
   })
 

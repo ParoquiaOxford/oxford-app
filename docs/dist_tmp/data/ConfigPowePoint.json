@@ -1,0 +1,117 @@
+{
+  "ConfigPowerPoint": {
+    "metadata": {
+      "referencia_arquivo": "2712_SAB_Missa_SagradaFamilia_Matriz_1900.pptx",
+      "referencia_template_path": "./templates/2712_SAB_Missa_SagradaFamilia_Matriz_1900.pptx",
+      "contexto": "Litúrgico / Missa",
+      "estilo": "Minimalista de Alto Contraste"
+    },
+    "layout_global": {
+      "proporcao_tela": "16:9",
+      "cores": {
+        "fundo": "#000000",
+        "texto_principal": "#FFFFFF",
+        "destaque_secao": "#000000",
+        "texto_suporte": "#757575"
+      },
+      "fontes": {
+        "familias_permitidas": ["Arial", "Verdana"],
+        "familia_principal": "Verdana",
+        "caixa_texto": "UPPERCASE",
+        "transformacao_texto": "maiusculas",
+        "alinhamento": "centro",
+        "estilo": {
+          "negrito": true,
+          "italico": false,
+          "sublinhado": false
+        }
+      },
+      "margens": {
+        "top": 0.5,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 0.5
+      },
+      "imagem_fundo": {
+        "x_cm": 0,
+        "y_cm": 0,
+        "largura_cm": 33.87,
+        "altura_cm": 19.05
+      },
+      "area_texto": {
+        "x_cm": 0,
+        "y_cm": 0.82,
+        "largura_cm": 33.87,
+        "altura_cm": 19.05,
+        "rotacao_graus": 0,
+        "escala_altura_percent": 100,
+        "escala_largura_percent": 100,
+        "alinhamento_vertical": "centralizado",
+        "direcao_texto": "horz",
+        "margens_texto_cm": {
+          "left": 0.25,
+          "right": 0.25,
+          "top": 0.13,
+          "bottom": 0.13
+        }
+      },
+      "slide_capa": {
+        "habilitar": true
+      },
+      "logo_canto": {
+        "habilitar": true,
+        "mostrar_no_primeiro_slide": false,
+        "x_cm": 32.51,
+        "y_cm": 17.08,
+        "largura_cm": 1.23,
+        "altura_cm": 1.91,
+        "rotacao_graus": 0
+      },
+      "slide_separador": {
+        "habilitar": true,
+        "fundo": "#FFFFFF",
+        "logo": {
+          "x_cm": 12.1,
+          "y_cm": 2.65,
+          "largura_cm": 18.46,
+          "altura_cm": 11.86,
+          "escala_largura_percent": 114,
+          "escala_altura_percent": 110,
+          "rotacao_graus": 0
+        }
+      }
+    },
+    "estilos_slides": {
+      "abertura": {
+        "tamanho_fonte": 16,
+        "negrito": true,
+        "posicao": "centralizado"
+      },
+      "secao_liturgica": {
+        "exemplo": ["ATO PENITENCIAL", "HINO DE LOUVOR", "OFERTÓRIO"],
+        "tamanho_fonte": 16,
+        "cor": "#757575",
+        "alinhamento": "inferior-direita",
+        "italico": false
+      },
+      "conteudo_leitura_canto": {
+        "tamanho_fonte": 54,
+        "espacamento_linhas": 1.15,
+        "quebra_automatica": true,
+        "letras_maiusculas": true,
+        "misturar_estrofes_no_mesmo_slide": false
+      }
+    },
+    "elementos_especificos": {
+      "marcadores_repeticao": {
+        "estilo": "(BIS)",
+        "posicao": "final_da_linha"
+      },
+      "identificadores_partes": {
+        "fonte": "Calibri",
+        "tamanho": 14,
+        "estilo": "Cinza Subutilizado"
+      }
+    }
+  }
+}

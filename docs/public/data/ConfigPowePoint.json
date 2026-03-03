@@ -57,6 +57,28 @@
       },
       "slide_capa": {
         "habilitar": true
+      },
+      "logo_canto": {
+        "habilitar": true,
+        "mostrar_no_primeiro_slide": false,
+        "x_cm": 32.51,
+        "y_cm": 17.08,
+        "largura_cm": 1.23,
+        "altura_cm": 1.91,
+        "rotacao_graus": 0
+      },
+      "slide_separador": {
+        "habilitar": true,
+        "fundo": "#000000",
+        "logo": {
+          "x_cm": 10.24, 
+          "y_cm": 0.35,
+          "largura_cm": 8.57,
+          "altura_cm": 12.75,
+          "escala_largura_percent": 144,
+          "escala_altura_percent": 144,
+          "rotacao_graus": 0
+        }
       }
     },
     "estilos_slides": {
