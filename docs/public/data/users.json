@@ -2,11 +2,13 @@
   {
     "id": 1,
     "username": "admin",
-    "password": "123456"
+    "password": "123456",
+    "role": "adm"
   },
   {
     "id": 2,
     "username": "liturgia",
-    "password": "missa2026"
+    "password": "missa2026",
+    "role": "user"
   }
 ]

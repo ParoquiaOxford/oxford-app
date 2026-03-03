@@ -15,9 +15,22 @@
         "texto_suporte": "#757575"
       },
       "fontes": {
+        "familias_permitidas": ["Arial", "Verdana"],
         "familia_principal": "Arial",
         "caixa_texto": "UPPERCASE",
-        "alinhamento": "esquerda"
+        "transformacao_texto": "maiusculas",
+        "alinhamento": "esquerda",
+        "estilo": {
+          "negrito": false,
+          "italico": false,
+          "sublinhado": false
+        }
+      },
+      "margens": {
+        "top": 4,
+        "bottom": 4,
+        "left": 4,
+        "right": 4
       }
     },
     "estilos_slides": {

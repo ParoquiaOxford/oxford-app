@@ -13,6 +13,34 @@ import { generateRepertoryPptx } from './ppt.js'
 
 const PAGE = document.body.dataset.page
 const THEME_KEY = 'oxford.theme'
+const ADMIN_ROLE = 'adm'
+
+const hasAdmRole = (session) => session?.role === ADMIN_ROLE
+
+const resolveSessionRole = async (session) => {
+  if (!session) return null
+  if (typeof session.role === 'string' && session.role.length) return session
+
+  try {
+    const users = await loadUsers()
+    const matchedUser = users.find(
+      (user) => Number(user.id) === Number(session.id) || String(user.username) === String(session.username),
+    )
+
+    if (matchedUser?.role) {
+      const nextSession = {
+        ...session,
+        role: matchedUser.role,
+      }
+      saveSession({ ...matchedUser, role: matchedUser.role })
+      return nextSession
+    }
+  } catch {
+    return session
+  }
+
+  return session
+}
 
 const getPreferredTheme = () => {
   const storedTheme = localStorage.getItem(THEME_KEY)
@@ -187,8 +215,9 @@ const renderSelectedMusicItem = (song, categoryName, canDelete) => {
 }
 
 const initDashboardPage = async () => {
-  const session = requireSession('./signin.html')
-  if (!session) return
+  const rawSession = requireSession('./signin.html')
+  if (!rawSession) return
+  const session = await resolveSessionRole(rawSession)
 
   const welcomeUser = document.getElementById('welcome-user')
   const categorySelect = document.getElementById('category-select')
@@ -207,19 +236,20 @@ const initDashboardPage = async () => {
   const addSongFeedback = document.getElementById('add-song-feedback')
   const submitSongButton = document.getElementById('submit-song-btn')
   const cancelEditSongButton = document.getElementById('cancel-edit-song-btn')
-  const settingsForm = document.getElementById('settings-form')
-  const settingsFeedback = document.getElementById('settings-feedback')
-  const resetSettingsButton = document.getElementById('reset-settings-btn')
+  const settingsLink = document.getElementById('settings-link')
 
   if (welcomeUser) {
     welcomeUser.textContent = `Bem-vindo, ${session.username}.`
+  }
+
+  if (settingsLink && hasAdmRole(session)) {
+    settingsLink.classList.remove('hidden')
   }
 
   let categories = []
   let availableSongs = []
   let customSongs = []
   let editingSongId = null
-  let pptSettings = loadPptSettings() ?? {}
 
   try {
     const [loadedCategories, loadedRepertory] = await Promise.all([loadCategories(), loadRepertory()])
@@ -231,8 +261,6 @@ const initDashboardPage = async () => {
   }
 
   const categoriesMap = new Map(categories.map((category) => [category.id, category]))
-
-  const basePowerPointConfig = await loadBasePowerPointConfig()
 
   categories
     .sort((a, b) => a.order - b.order)
@@ -257,49 +285,6 @@ const initDashboardPage = async () => {
       songMap.set(song.id, song)
     })
     return [...songMap.values()]
-  }
-
-  const fillSettingsForm = () => {
-    if (!(settingsForm instanceof HTMLFormElement)) return
-
-    const baseLayout = basePowerPointConfig?.layout_global ?? {}
-    const baseColors = baseLayout?.cores ?? {}
-    const baseFonts = baseLayout?.fontes ?? {}
-    const baseStyles = basePowerPointConfig?.estilos_slides ?? {}
-
-    const values = {
-      fontFamily: pptSettings.fontFamily ?? baseFonts.familia_principal ?? 'Arial',
-      fontSizeTitle: String(pptSettings.fontSizeTitle ?? baseStyles?.abertura?.tamanho_fonte ?? 32),
-      fontSizeContent: String(pptSettings.fontSizeContent ?? baseStyles?.conteudo_leitura_canto?.tamanho_fonte ?? 28),
-      colorMain: pptSettings.colorMain ?? baseColors.texto_principal ?? '#000000',
-      colorHighlight: pptSettings.colorHighlight ?? baseColors.destaque_secao ?? '#5B9BD5',
-      colorSupport: pptSettings.colorSupport ?? baseColors.texto_suporte ?? '#757575',
-      margin: String(pptSettings.margin ?? 4),
-      lineSpacing: String(pptSettings.lineSpacing ?? baseStyles?.conteudo_leitura_canto?.espacamento_linhas ?? 1.15),
-      imageUrl: pptSettings.backgroundImagePath ?? '',
-      uppercase: Boolean(pptSettings.forceUppercase),
-    }
-
-    const setFieldValue = (id, value) => {
-      const field = document.getElementById(id)
-      if (!field) return
-      if (field instanceof HTMLInputElement && field.type === 'checkbox') {
-        field.checked = Boolean(value)
-        return
-      }
-      field.value = String(value ?? '')
-    }
-
-    setFieldValue('setting-font-family', values.fontFamily)
-    setFieldValue('setting-font-size-title', values.fontSizeTitle)
-    setFieldValue('setting-font-size-content', values.fontSizeContent)
-    setFieldValue('setting-color-main', values.colorMain)
-    setFieldValue('setting-color-highlight', values.colorHighlight)
-    setFieldValue('setting-color-support', values.colorSupport)
-    setFieldValue('setting-margin', values.margin)
-    setFieldValue('setting-line-spacing', values.lineSpacing)
-    setFieldValue('setting-image-url', values.imageUrl)
-    setFieldValue('setting-uppercase', values.uppercase)
   }
 
   const getUserAddedSongIdSet = () =>
@@ -448,57 +433,6 @@ const initDashboardPage = async () => {
   searchInput?.addEventListener('input', renderList)
   categorySelect?.addEventListener('change', renderList)
 
-  settingsForm?.addEventListener('submit', async (event) => {
-    event.preventDefault()
-    showFormFeedback(settingsFeedback)
-
-    const formData = new FormData(settingsForm)
-    const imageFile = formData.get('imageFile')
-
-    const nextSettings = {
-      fontFamily: String(formData.get('fontFamily') ?? '').trim() || 'Arial',
-      fontSizeTitle: Number(formData.get('fontSizeTitle') ?? 32),
-      fontSizeContent: Number(formData.get('fontSizeContent') ?? 28),
-      colorMain: String(formData.get('colorMain') ?? '#000000'),
-      colorHighlight: String(formData.get('colorHighlight') ?? '#5B9BD5'),
-      colorSupport: String(formData.get('colorSupport') ?? '#757575'),
-      margin: Number(formData.get('margin') ?? 4),
-      lineSpacing: Number(formData.get('lineSpacing') ?? 1.15),
-      forceUppercase: Boolean(formData.get('uppercase')),
-      backgroundImagePath: String(formData.get('imageUrl') ?? '').trim(),
-      backgroundImageDataUrl: pptSettings.backgroundImageDataUrl ?? '',
-    }
-
-    if (imageFile instanceof File && imageFile.size > 0) {
-      try {
-        nextSettings.backgroundImageDataUrl = await fileToDataUrl(imageFile)
-      } catch {
-        showFormFeedback(settingsFeedback, 'Não foi possível processar a imagem enviada.', 'error')
-        return
-      }
-    }
-
-    if (!nextSettings.backgroundImagePath) {
-      nextSettings.backgroundImagePath = ''
-    }
-
-    pptSettings = nextSettings
-    savePptSettings(nextSettings)
-    showFormFeedback(settingsFeedback, 'Settings salvos com sucesso.')
-    settingsForm.reset()
-    fillSettingsForm()
-  })
-
-  resetSettingsButton?.addEventListener('click', () => {
-    clearPptSettings()
-    pptSettings = {}
-    if (settingsForm instanceof HTMLFormElement) {
-      settingsForm.reset()
-    }
-    fillSettingsForm()
-    showFormFeedback(settingsFeedback, 'Settings resetados para o padrão.')
-  })
-
   cancelEditSongButton?.addEventListener('click', () => {
     resetSongFormState()
     showFormFeedback(addSongFeedback)
@@ -612,14 +546,199 @@ const initDashboardPage = async () => {
   })
 
   updateSelectedCount()
-  fillSettingsForm()
   renderList()
   renderSelectedList()
+}
+
+const initSettingsPage = async () => {
+  const rawSession = requireSession('./signin.html')
+  if (!rawSession) return
+  const session = await resolveSessionRole(rawSession)
+
+  if (!hasAdmRole(session)) {
+    window.location.href = './dashboard.html'
+    return
+  }
+
+  const welcomeUser = document.getElementById('welcome-user')
+  const logoutButton = document.getElementById('logout-btn')
+  const settingsForm = document.getElementById('settings-form')
+  const settingsFeedback = document.getElementById('settings-feedback')
+  const resetSettingsButton = document.getElementById('reset-settings-btn')
+
+  if (welcomeUser) {
+    welcomeUser.textContent = `Bem-vindo, ${session.username}.`
+  }
+
+  const basePowerPointConfig = await loadBasePowerPointConfig()
+  let pptSettings = loadPptSettings() ?? {}
+
+  const fillSettingsForm = () => {
+    if (!(settingsForm instanceof HTMLFormElement)) return
+
+    const baseLayout = basePowerPointConfig?.layout_global ?? {}
+    const baseColors = baseLayout?.cores ?? {}
+    const baseFonts = baseLayout?.fontes ?? {}
+    const baseMargins = baseLayout?.margens ?? {}
+    const baseStyles = basePowerPointConfig?.estilos_slides ?? {}
+    const allowedFonts = Array.isArray(baseFonts?.familias_permitidas)
+      ? baseFonts.familias_permitidas
+      : ['Arial', 'Verdana']
+
+    const defaultFont =
+      allowedFonts.find((font) => String(font).toLowerCase() === String(baseFonts.familia_principal ?? '').toLowerCase()) ??
+      allowedFonts[0] ??
+      'Arial'
+
+    const settingsFont = String(pptSettings.fontFamily ?? '').trim()
+    const fontFamily =
+      allowedFonts.find((font) => String(font).toLowerCase() === settingsFont.toLowerCase()) ?? defaultFont
+
+    const baseFontStyle = baseFonts?.estilo ?? {}
+    const fontStyle = {
+      bold: Boolean(pptSettings?.fontStyle?.bold ?? baseFontStyle?.negrito ?? false),
+      italic: Boolean(pptSettings?.fontStyle?.italic ?? baseFontStyle?.italico ?? false),
+      underline: Boolean(pptSettings?.fontStyle?.underline ?? baseFontStyle?.sublinhado ?? false),
+    }
+
+    const textCase = String(
+      pptSettings.textCase ?? baseFonts.transformacao_texto ?? (baseStyles?.conteudo_leitura_canto?.letras_maiusculas ? 'maiusculas' : 'original'),
+    ).toLowerCase()
+
+    const values = {
+      fontFamily,
+      textAlign: String(pptSettings.textAlign ?? baseFonts.alinhamento ?? 'esquerda').toLowerCase(),
+      textCase: ['maiusculas', 'minusculas', 'original'].includes(textCase) ? textCase : 'original',
+      fontSizeTitle: String(pptSettings.fontSizeTitle ?? baseStyles?.abertura?.tamanho_fonte ?? 32),
+      fontSizeContent: String(pptSettings.fontSizeContent ?? baseStyles?.conteudo_leitura_canto?.tamanho_fonte ?? 28),
+      colorMain: pptSettings.colorMain ?? baseColors.texto_principal ?? '#000000',
+      colorHighlight: pptSettings.colorHighlight ?? baseColors.destaque_secao ?? '#5B9BD5',
+      colorSupport: pptSettings.colorSupport ?? baseColors.texto_suporte ?? '#757575',
+      colorBackground: pptSettings.colorBackground ?? baseColors.fundo ?? '#FFFFFF',
+      lineSpacing: String(pptSettings.lineSpacing ?? baseStyles?.conteudo_leitura_canto?.espacamento_linhas ?? 1.15),
+      marginTop: String(pptSettings?.margins?.top ?? baseMargins.top ?? 4),
+      marginBottom: String(pptSettings?.margins?.bottom ?? baseMargins.bottom ?? 4),
+      marginLeft: String(pptSettings?.margins?.left ?? baseMargins.left ?? 4),
+      marginRight: String(pptSettings?.margins?.right ?? baseMargins.right ?? 4),
+      imageUrl: pptSettings.backgroundImagePath ?? '',
+      fontBold: fontStyle.bold,
+      fontItalic: fontStyle.italic,
+      fontUnderline: fontStyle.underline,
+    }
+
+    const setFieldValue = (id, value) => {
+      const field = document.getElementById(id)
+      if (!field) return
+      if (field instanceof HTMLInputElement && field.type === 'checkbox') {
+        field.checked = Boolean(value)
+        return
+      }
+      field.value = String(value ?? '')
+    }
+
+    setFieldValue('setting-font-family', values.fontFamily)
+    setFieldValue('setting-font-size-title', values.fontSizeTitle)
+    setFieldValue('setting-font-size-content', values.fontSizeContent)
+    setFieldValue('setting-color-main', values.colorMain)
+    setFieldValue('setting-color-highlight', values.colorHighlight)
+    setFieldValue('setting-color-support', values.colorSupport)
+    setFieldValue('setting-color-background', values.colorBackground)
+    setFieldValue('setting-line-spacing', values.lineSpacing)
+    setFieldValue('setting-margin-top', values.marginTop)
+    setFieldValue('setting-margin-bottom', values.marginBottom)
+    setFieldValue('setting-margin-left', values.marginLeft)
+    setFieldValue('setting-margin-right', values.marginRight)
+    setFieldValue('setting-image-url', values.imageUrl)
+    setFieldValue('setting-text-align', values.textAlign)
+    setFieldValue('setting-text-case', values.textCase)
+    setFieldValue('setting-font-bold', values.fontBold)
+    setFieldValue('setting-font-italic', values.fontItalic)
+    setFieldValue('setting-font-underline', values.fontUnderline)
+  }
+
+  settingsForm?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    showFormFeedback(settingsFeedback)
+
+    const formData = new FormData(settingsForm)
+    const imageFile = formData.get('imageFile')
+    const allowedFontsFromConfig = basePowerPointConfig?.layout_global?.fontes?.familias_permitidas
+    const allowedFonts = Array.isArray(allowedFontsFromConfig) ? allowedFontsFromConfig : ['Arial', 'Verdana']
+    const selectedFont = String(formData.get('fontFamily') ?? '').trim()
+
+    if (!allowedFonts.includes(selectedFont)) {
+      showFormFeedback(settingsFeedback, 'Fonte inválida. Use apenas Arial ou Verdana.', 'error')
+      return
+    }
+
+    const nextSettings = {
+      fontFamily: selectedFont || 'Arial',
+      textAlign: String(formData.get('textAlign') ?? 'esquerda').toLowerCase(),
+      textCase: String(formData.get('textCase') ?? 'original').toLowerCase(),
+      fontStyle: {
+        bold: Boolean(formData.get('fontBold')),
+        italic: Boolean(formData.get('fontItalic')),
+        underline: Boolean(formData.get('fontUnderline')),
+      },
+      fontSizeTitle: Number(formData.get('fontSizeTitle') ?? 32),
+      fontSizeContent: Number(formData.get('fontSizeContent') ?? 28),
+      colorMain: String(formData.get('colorMain') ?? '#000000'),
+      colorHighlight: String(formData.get('colorHighlight') ?? '#5B9BD5'),
+      colorSupport: String(formData.get('colorSupport') ?? '#757575'),
+      colorBackground: String(formData.get('colorBackground') ?? '#FFFFFF'),
+      lineSpacing: Number(formData.get('lineSpacing') ?? 1.15),
+      margins: {
+        top: Number(formData.get('marginTop') ?? 4),
+        bottom: Number(formData.get('marginBottom') ?? 4),
+        left: Number(formData.get('marginLeft') ?? 4),
+        right: Number(formData.get('marginRight') ?? 4),
+      },
+      backgroundImagePath: String(formData.get('imageUrl') ?? '').trim(),
+      backgroundImageDataUrl: pptSettings.backgroundImageDataUrl ?? '',
+    }
+
+    if (imageFile instanceof File && imageFile.size > 0) {
+      try {
+        nextSettings.backgroundImageDataUrl = await fileToDataUrl(imageFile)
+      } catch {
+        showFormFeedback(settingsFeedback, 'Não foi possível processar a imagem enviada.', 'error')
+        return
+      }
+    }
+
+    if (!nextSettings.backgroundImagePath) {
+      nextSettings.backgroundImagePath = ''
+    }
+
+    pptSettings = nextSettings
+    savePptSettings(nextSettings)
+    showFormFeedback(settingsFeedback, 'Settings salvos com sucesso.')
+    settingsForm.reset()
+    fillSettingsForm()
+  })
+
+  resetSettingsButton?.addEventListener('click', () => {
+    clearPptSettings()
+    pptSettings = {}
+    if (settingsForm instanceof HTMLFormElement) {
+      settingsForm.reset()
+    }
+    fillSettingsForm()
+    showFormFeedback(settingsFeedback, 'Settings resetados para o padrão.')
+  })
+
+  logoutButton?.addEventListener('click', () => {
+    clearSession()
+    window.location.href = './signin.html'
+  })
+
+  fillSettingsForm()
 }
 
 if (PAGE === 'home') initHomePage()
 if (PAGE === 'signin') initSigninPage()
 if (PAGE === 'dashboard') initDashboardPage()
+if (PAGE === 'settings') initSettingsPage()
 
 applyTheme(getPreferredTheme())
 setupThemeToggle()

@@ -12,6 +12,7 @@ export const saveSession = (user) => {
   const session = {
     id: user.id,
     username: user.username,
+    role: user.role,
     loggedAt: new Date().toISOString(),
   }
   localStorage.setItem(SESSION_KEY, JSON.stringify(session))
@@ -24,6 +25,7 @@ export const getSession = () => {
   try {
     const parsed = JSON.parse(raw)
     if (!parsed?.id || !parsed?.username) return null
+    if (parsed?.role && typeof parsed.role !== 'string') return null
     return parsed
   } catch {
     return null

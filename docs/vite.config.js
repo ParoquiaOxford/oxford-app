@@ -9,6 +9,7 @@ export default defineConfig({
         main: './index.html',
         signin: './signin.html',
         dashboard: './dashboard.html',
+        settings: './settings.html',
       },
     },
   },

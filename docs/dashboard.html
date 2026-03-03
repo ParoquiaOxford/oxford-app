@@ -15,6 +15,7 @@
             <p id="welcome-user" class="mt-1 text-sm text-stone-600 dark:text-stone-300"></p>
           </div>
           <div class="flex items-center gap-2">
+            <a id="settings-link" href="./settings.html" class="btn-secondary hidden px-3 py-1.5 text-xs">Settings</a>
             <button id="theme-toggle-btn" class="btn-secondary px-3 py-1.5 text-xs">Tema</button>
             <button id="logout-btn" class="btn-secondary">Sair</button>
           </div>
@@ -77,75 +78,6 @@
             <option value="all">Todas</option>
           </select>
         </div>
-      </section>
-
-      <section class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800 sm:p-6">
-        <h2 class="text-lg font-semibold text-stone-900 dark:text-stone-100">Settings</h2>
-        <p class="mt-1 text-sm text-stone-600 dark:text-stone-300">Configure parâmetros usados na geração do repertório.</p>
-
-        <form id="settings-form" class="mt-4 grid gap-4 sm:grid-cols-3" novalidate>
-          <div>
-            <label for="setting-font-family" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Fonte</label>
-            <input id="setting-font-family" name="fontFamily" class="input-field mt-1" placeholder="Arial" />
-          </div>
-
-          <div>
-            <label for="setting-font-size-title" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Tamanho fonte (título)</label>
-            <input id="setting-font-size-title" name="fontSizeTitle" type="number" min="10" max="72" class="input-field mt-1" />
-          </div>
-
-          <div>
-            <label for="setting-font-size-content" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Tamanho fonte (conteúdo)</label>
-            <input id="setting-font-size-content" name="fontSizeContent" type="number" min="10" max="72" class="input-field mt-1" />
-          </div>
-
-          <div>
-            <label for="setting-color-main" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Cor fonte principal</label>
-            <input id="setting-color-main" name="colorMain" type="color" class="input-field mt-1 h-10 p-1" />
-          </div>
-
-          <div>
-            <label for="setting-color-highlight" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Cor destaque</label>
-            <input id="setting-color-highlight" name="colorHighlight" type="color" class="input-field mt-1 h-10 p-1" />
-          </div>
-
-          <div>
-            <label for="setting-color-support" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Cor suporte</label>
-            <input id="setting-color-support" name="colorSupport" type="color" class="input-field mt-1 h-10 p-1" />
-          </div>
-
-          <div>
-            <label for="setting-margin" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Margem (pt)</label>
-            <input id="setting-margin" name="margin" type="number" min="0" max="40" step="1" class="input-field mt-1" />
-          </div>
-
-          <div>
-            <label for="setting-line-spacing" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Espaçamento</label>
-            <input id="setting-line-spacing" name="lineSpacing" type="number" min="1" max="3" step="0.05" class="input-field mt-1" />
-          </div>
-
-          <div>
-            <label for="setting-image-url" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Imagem (URL)</label>
-            <input id="setting-image-url" name="imageUrl" class="input-field mt-1" placeholder="https://..." />
-          </div>
-
-          <div class="sm:col-span-2">
-            <label for="setting-image-file" class="block text-sm font-medium text-stone-700 dark:text-stone-200">Imagem (upload)</label>
-            <input id="setting-image-file" name="imageFile" type="file" accept="image/*" class="input-field mt-1" />
-          </div>
-
-          <label class="sm:col-span-3 inline-flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-            <input id="setting-uppercase" name="uppercase" type="checkbox" class="h-4 w-4 accent-amber-700" />
-            Forçar letras maiúsculas
-          </label>
-
-          <p id="settings-feedback" class="sm:col-span-3 hidden rounded-md border px-3 py-2 text-sm"></p>
-
-          <div class="sm:col-span-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button id="reset-settings-btn" type="button" class="btn-secondary">Resetar Settings</button>
-            <button type="submit" class="btn-primary">Salvar Settings</button>
-          </div>
-        </form>
       </section>
 
       <section class="mt-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800 sm:p-6">
