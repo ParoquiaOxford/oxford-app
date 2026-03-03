@@ -14,6 +14,7 @@ const ensureArray = (value, fileName) => {
 }
 
 const CUSTOM_REPERTORY_KEY = 'oxford.customRepertory'
+const PPT_SETTINGS_KEY = 'oxford.pptSettings'
 
 export const loadUsers = async () => {
   const users = await fetchJson('./data/users.json')
@@ -44,4 +45,23 @@ export const loadCustomRepertory = () => {
 
 export const saveCustomRepertory = (songs) => {
   localStorage.setItem(CUSTOM_REPERTORY_KEY, JSON.stringify(songs))
+}
+
+export const loadPptSettings = () => {
+  const raw = localStorage.getItem(PPT_SETTINGS_KEY)
+  if (!raw) return null
+
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+export const savePptSettings = (settings) => {
+  localStorage.setItem(PPT_SETTINGS_KEY, JSON.stringify(settings))
+}
+
+export const clearPptSettings = () => {
+  localStorage.removeItem(PPT_SETTINGS_KEY)
 }

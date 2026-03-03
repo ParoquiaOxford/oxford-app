@@ -1,6 +1,14 @@
 import '../../style.css'
 import { findUser, getSession, requireSession, saveSession, clearSession } from './auth.js'
-import { loadUsers, loadCategories, loadRepertory, saveCustomRepertory } from './data.js'
+import {
+  loadUsers,
+  loadCategories,
+  loadRepertory,
+  saveCustomRepertory,
+  loadPptSettings,
+  savePptSettings,
+  clearPptSettings,
+} from './data.js'
 import { generateRepertoryPptx } from './ppt.js'
 
 const PAGE = document.body.dataset.page
@@ -61,6 +69,29 @@ const showFormFeedback = (element, message = '', type = 'success') => {
   element.className = type === 'error' ? errorClass : successClass
   element.textContent = message
 }
+
+const loadBasePowerPointConfig = async () => {
+  const candidates = ['./data/ConfigPowePoint.json']
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate)
+      if (!response.ok) continue
+      const parsed = await response.json()
+      if (parsed?.ConfigPowerPoint) return parsed.ConfigPowerPoint
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
+const fileToDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result ?? ''))
+    reader.onerror = () => reject(new Error('Não foi possível ler a imagem selecionada.'))
+    reader.readAsDataURL(file)
+  })
 
 const sortSongsByCategoryOrder = (songs, categoriesMap) => {
   return [...songs].sort((a, b) => {
@@ -176,6 +207,9 @@ const initDashboardPage = async () => {
   const addSongFeedback = document.getElementById('add-song-feedback')
   const submitSongButton = document.getElementById('submit-song-btn')
   const cancelEditSongButton = document.getElementById('cancel-edit-song-btn')
+  const settingsForm = document.getElementById('settings-form')
+  const settingsFeedback = document.getElementById('settings-feedback')
+  const resetSettingsButton = document.getElementById('reset-settings-btn')
 
   if (welcomeUser) {
     welcomeUser.textContent = `Bem-vindo, ${session.username}.`
@@ -185,6 +219,7 @@ const initDashboardPage = async () => {
   let availableSongs = []
   let customSongs = []
   let editingSongId = null
+  let pptSettings = loadPptSettings() ?? {}
 
   try {
     const [loadedCategories, loadedRepertory] = await Promise.all([loadCategories(), loadRepertory()])
@@ -196,6 +231,8 @@ const initDashboardPage = async () => {
   }
 
   const categoriesMap = new Map(categories.map((category) => [category.id, category]))
+
+  const basePowerPointConfig = await loadBasePowerPointConfig()
 
   categories
     .sort((a, b) => a.order - b.order)
@@ -220,6 +257,49 @@ const initDashboardPage = async () => {
       songMap.set(song.id, song)
     })
     return [...songMap.values()]
+  }
+
+  const fillSettingsForm = () => {
+    if (!(settingsForm instanceof HTMLFormElement)) return
+
+    const baseLayout = basePowerPointConfig?.layout_global ?? {}
+    const baseColors = baseLayout?.cores ?? {}
+    const baseFonts = baseLayout?.fontes ?? {}
+    const baseStyles = basePowerPointConfig?.estilos_slides ?? {}
+
+    const values = {
+      fontFamily: pptSettings.fontFamily ?? baseFonts.familia_principal ?? 'Arial',
+      fontSizeTitle: String(pptSettings.fontSizeTitle ?? baseStyles?.abertura?.tamanho_fonte ?? 32),
+      fontSizeContent: String(pptSettings.fontSizeContent ?? baseStyles?.conteudo_leitura_canto?.tamanho_fonte ?? 28),
+      colorMain: pptSettings.colorMain ?? baseColors.texto_principal ?? '#000000',
+      colorHighlight: pptSettings.colorHighlight ?? baseColors.destaque_secao ?? '#5B9BD5',
+      colorSupport: pptSettings.colorSupport ?? baseColors.texto_suporte ?? '#757575',
+      margin: String(pptSettings.margin ?? 4),
+      lineSpacing: String(pptSettings.lineSpacing ?? baseStyles?.conteudo_leitura_canto?.espacamento_linhas ?? 1.15),
+      imageUrl: pptSettings.backgroundImagePath ?? '',
+      uppercase: Boolean(pptSettings.forceUppercase),
+    }
+
+    const setFieldValue = (id, value) => {
+      const field = document.getElementById(id)
+      if (!field) return
+      if (field instanceof HTMLInputElement && field.type === 'checkbox') {
+        field.checked = Boolean(value)
+        return
+      }
+      field.value = String(value ?? '')
+    }
+
+    setFieldValue('setting-font-family', values.fontFamily)
+    setFieldValue('setting-font-size-title', values.fontSizeTitle)
+    setFieldValue('setting-font-size-content', values.fontSizeContent)
+    setFieldValue('setting-color-main', values.colorMain)
+    setFieldValue('setting-color-highlight', values.colorHighlight)
+    setFieldValue('setting-color-support', values.colorSupport)
+    setFieldValue('setting-margin', values.margin)
+    setFieldValue('setting-line-spacing', values.lineSpacing)
+    setFieldValue('setting-image-url', values.imageUrl)
+    setFieldValue('setting-uppercase', values.uppercase)
   }
 
   const getUserAddedSongIdSet = () =>
@@ -367,6 +447,58 @@ const initDashboardPage = async () => {
 
   searchInput?.addEventListener('input', renderList)
   categorySelect?.addEventListener('change', renderList)
+
+  settingsForm?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    showFormFeedback(settingsFeedback)
+
+    const formData = new FormData(settingsForm)
+    const imageFile = formData.get('imageFile')
+
+    const nextSettings = {
+      fontFamily: String(formData.get('fontFamily') ?? '').trim() || 'Arial',
+      fontSizeTitle: Number(formData.get('fontSizeTitle') ?? 32),
+      fontSizeContent: Number(formData.get('fontSizeContent') ?? 28),
+      colorMain: String(formData.get('colorMain') ?? '#000000'),
+      colorHighlight: String(formData.get('colorHighlight') ?? '#5B9BD5'),
+      colorSupport: String(formData.get('colorSupport') ?? '#757575'),
+      margin: Number(formData.get('margin') ?? 4),
+      lineSpacing: Number(formData.get('lineSpacing') ?? 1.15),
+      forceUppercase: Boolean(formData.get('uppercase')),
+      backgroundImagePath: String(formData.get('imageUrl') ?? '').trim(),
+      backgroundImageDataUrl: pptSettings.backgroundImageDataUrl ?? '',
+    }
+
+    if (imageFile instanceof File && imageFile.size > 0) {
+      try {
+        nextSettings.backgroundImageDataUrl = await fileToDataUrl(imageFile)
+      } catch {
+        showFormFeedback(settingsFeedback, 'Não foi possível processar a imagem enviada.', 'error')
+        return
+      }
+    }
+
+    if (!nextSettings.backgroundImagePath) {
+      nextSettings.backgroundImagePath = ''
+    }
+
+    pptSettings = nextSettings
+    savePptSettings(nextSettings)
+    showFormFeedback(settingsFeedback, 'Settings salvos com sucesso.')
+    settingsForm.reset()
+    fillSettingsForm()
+  })
+
+  resetSettingsButton?.addEventListener('click', () => {
+    clearPptSettings()
+    pptSettings = {}
+    if (settingsForm instanceof HTMLFormElement) {
+      settingsForm.reset()
+    }
+    fillSettingsForm()
+    showFormFeedback(settingsFeedback, 'Settings resetados para o padrão.')
+  })
+
   cancelEditSongButton?.addEventListener('click', () => {
     resetSongFormState()
     showFormFeedback(addSongFeedback)
@@ -480,6 +612,7 @@ const initDashboardPage = async () => {
   })
 
   updateSelectedCount()
+  fillSettingsForm()
   renderList()
   renderSelectedList()
 }

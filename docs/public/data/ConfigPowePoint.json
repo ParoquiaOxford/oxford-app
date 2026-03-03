@@ -1,0 +1,55 @@
+{
+  "ConfigPowerPoint": {
+    "metadata": {
+      "referencia_arquivo": "2712_SAB_Missa_SagradaFamilia_Matriz_1900.pptx",
+      "referencia_template_path": "./templates/2712_SAB_Missa_SagradaFamilia_Matriz_1900.pptx",
+      "contexto": "Litúrgico / Missa",
+      "estilo": "Minimalista de Alto Contraste"
+    },
+    "layout_global": {
+      "proporcao_tela": "16:9",
+      "cores": {
+        "fundo": "#FFFFFF",
+        "texto_principal": "#000000",
+        "destaque_secao": "#5B9BD5",
+        "texto_suporte": "#757575"
+      },
+      "fontes": {
+        "familia_principal": "Arial",
+        "caixa_texto": "UPPERCASE",
+        "alinhamento": "esquerda"
+      }
+    },
+    "estilos_slides": {
+      "abertura": {
+        "tamanho_fonte": 32,
+        "negrito": true,
+        "posicao": "centro"
+      },
+      "secao_liturgica": {
+        "exemplo": ["ATO PENITENCIAL", "HINO DE LOUVOR", "OFERTÓRIO"],
+        "tamanho_fonte": 18,
+        "cor": "#757575",
+        "alinhamento": "inferior-direita",
+        "italico": false
+      },
+      "conteudo_leitura_canto": {
+        "tamanho_fonte": 28,
+        "espacamento_linhas": 1.15,
+        "quebra_automatica": true,
+        "letras_maiusculas": true
+      }
+    },
+    "elementos_especificos": {
+      "marcadores_repeticao": {
+        "estilo": "(BIS)",
+        "posicao": "final_da_linha"
+      },
+      "identificadores_partes": {
+        "fonte": "Calibri",
+        "tamanho": 14,
+        "estilo": "Cinza Subutilizado"
+      }
+    }
+  }
+}
