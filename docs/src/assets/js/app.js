@@ -142,7 +142,7 @@ const renderSelectedMusicItem = (song, categoryName, canDelete) => {
   wrapper.innerHTML = `
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <strong class="block text-sm text-stone-900">${song.title}</strong>
+        <strong class="block text-sm text-stone-900 dark:text-stone-100">${song.title}</strong>
         <span class="text-xs text-stone-500 dark:text-stone-300">${categoryName}</span>
       </div>
       <div class="flex items-center gap-2">
