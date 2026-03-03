@@ -43,6 +43,9 @@ jobs:
       - name: Ensure SPA fallback page
         run: cp docs/dist/index.html docs/dist/404.html
 
+      - name: Disable Jekyll processing
+        run: touch docs/dist/.nojekyll
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
