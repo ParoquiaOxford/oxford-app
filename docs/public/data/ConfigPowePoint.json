@@ -16,7 +16,7 @@
       },
       "fontes": {
         "familias_permitidas": ["Arial", "Verdana"],
-        "familia_principal": "Arial",
+        "familia_principal": "Verdana",
         "caixa_texto": "UPPERCASE",
         "transformacao_texto": "maiusculas",
         "alinhamento": "esquerda",
