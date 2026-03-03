@@ -27,6 +27,32 @@ const DEFAULT_CONFIG = {
       left: 4,
       right: 4,
     },
+    imagem_fundo: {
+      x_cm: 0,
+      y_cm: 0,
+      largura_cm: 33.87,
+      altura_cm: 19.05,
+    },
+    area_texto: {
+      x_cm: 0,
+      y_cm: 0.82,
+      largura_cm: 33.87,
+      altura_cm: 18.23,
+      rotacao_graus: 0,
+      escala_altura_percent: 102,
+      escala_largura_percent: 100,
+      alinhamento_vertical: 'middle',
+      direcao_texto: 'horz',
+      margens_texto_cm: {
+        top: 0.13,
+        right: 0.25,
+        bottom: 0.13,
+        left: 0.25,
+      },
+    },
+    slide_capa: {
+      habilitar: true,
+    },
   },
   estilos_slides: {
     abertura: {
@@ -45,6 +71,7 @@ const DEFAULT_CONFIG = {
       espacamento_linhas: 1.15,
       quebra_automatica: true,
       letras_maiusculas: true,
+      misturar_estrofes_no_mesmo_slide: false,
     },
   },
 }
@@ -110,6 +137,8 @@ const resolveMargins = (settingsMargins, configMargins) => {
 }
 
 const pointsToInches = (value) => Number(value || 0) / 72
+const cmToInches = (value) => Number(value || 0) / 2.54
+const cmToPoints = (value) => (Number(value || 0) / 2.54) * 72
 
 const clampNumber = (value, fallback, min, max) => {
   const numeric = Number(value)
@@ -230,31 +259,33 @@ const paginateLines = (lines, maxLinesPerSlide) => {
   return pages
 }
 
-const buildSongPages = ({ lyric, contentBox, fontSize, lineSpacing, fontFamily, bold, italic, allowAutoWrap }) => {
+const resolveBlockLines = ({ block, allowAutoWrap, contentBox, fontSize, fontFamily, bold, italic }) => {
+  if (!allowAutoWrap) {
+    return block.split('\n').map((line) => line.trimEnd())
+  }
+
+  return wrapTextToLines(block, {
+    widthInches: contentBox.w,
+    fontSize,
+    fontFamily,
+    bold,
+    italic,
+  })
+}
+
+const buildSongPages = ({
+  lyric,
+  contentBox,
+  fontSize,
+  lineSpacing,
+  fontFamily,
+  bold,
+  italic,
+  allowAutoWrap,
+  mergeStanzas,
+}) => {
   const blocks = splitMusicIntoBlocks(lyric)
   if (!blocks.length) return []
-
-  const lines = []
-  blocks.forEach((block, blockIndex) => {
-    const wrappedBlock = allowAutoWrap
-      ? wrapTextToLines(block, {
-          widthInches: contentBox.w,
-          fontSize,
-          fontFamily,
-          bold,
-          italic,
-        })
-      : block.split('\n').map((line) => line.trimEnd())
-
-    wrappedBlock.forEach((line) => lines.push(line))
-
-    if (blockIndex < blocks.length - 1) {
-      lines.push('')
-    }
-  })
-
-  while (lines.length && !lines[0]) lines.shift()
-  while (lines.length && !lines[lines.length - 1]) lines.pop()
 
   const maxLines = resolveMaxLinesPerSlide({
     heightInches: contentBox.h,
@@ -262,7 +293,53 @@ const buildSongPages = ({ lyric, contentBox, fontSize, lineSpacing, fontFamily, 
     lineSpacing,
   })
 
-  return paginateLines(lines, maxLines).map((pageLines) => pageLines.join('\n').trim())
+  const pages = []
+
+  if (mergeStanzas) {
+    const mergedLines = []
+
+    blocks.forEach((block, blockIndex) => {
+      const blockLines = resolveBlockLines({
+        block,
+        allowAutoWrap,
+        contentBox,
+        fontSize,
+        fontFamily,
+        bold,
+        italic,
+      })
+
+      blockLines.forEach((line) => mergedLines.push(line))
+
+      if (blockIndex < blocks.length - 1) {
+        mergedLines.push('')
+      }
+    })
+
+    return paginateLines(mergedLines, maxLines)
+      .map((pageLines) => pageLines.join('\n').trim())
+      .filter(Boolean)
+  }
+
+  blocks.forEach((block) => {
+    const wrappedBlock = resolveBlockLines({
+      block,
+      allowAutoWrap,
+      contentBox,
+      fontSize,
+      fontFamily,
+      bold,
+      italic,
+    })
+
+    const blockPages = paginateLines(wrappedBlock, maxLines)
+      .map((pageLines) => pageLines.join('\n').trim())
+      .filter(Boolean)
+
+    blockPages.forEach((pageText) => pages.push(pageText))
+  })
+
+  return pages
 }
 
 const resolveContentBox = (layout, margins) => {
@@ -284,6 +361,82 @@ const resolveContentBox = (layout, margins) => {
     y: base.y + top,
     w: Math.max(1.5, base.w - left - right),
     h: Math.max(1, base.h - top - bottom),
+  }
+}
+
+const resolveTextAreaBox = (layout, margins, textAreaConfig) => {
+  const fallback = resolveContentBox(layout, margins)
+
+  if (!textAreaConfig || typeof textAreaConfig !== 'object') {
+    return {
+      ...fallback,
+      rotate: 0,
+      valign: 'middle',
+      vert: 'horz',
+      margin: [cmToPoints(0.13), cmToPoints(0.25), cmToPoints(0.13), cmToPoints(0.25)],
+    }
+  }
+
+  const resolvedX = cmToInches(textAreaConfig.x_cm)
+  const resolvedY = cmToInches(textAreaConfig.y_cm)
+  const resolvedW = cmToInches(textAreaConfig.largura_cm)
+  const resolvedH = cmToInches(textAreaConfig.altura_cm)
+  const resolvedRotate = Number(textAreaConfig.rotacao_graus)
+  const scaleHeight = Number(textAreaConfig.escala_altura_percent ?? 100)
+  const scaleWidth = Number(textAreaConfig.escala_largura_percent ?? 100)
+
+  const topMarginCm = Number(textAreaConfig?.margens_texto_cm?.top ?? 0.13)
+  const rightMarginCm = Number(textAreaConfig?.margens_texto_cm?.right ?? 0.25)
+  const bottomMarginCm = Number(textAreaConfig?.margens_texto_cm?.bottom ?? 0.13)
+  const leftMarginCm = Number(textAreaConfig?.margens_texto_cm?.left ?? 0.25)
+
+  const verticalAlign = String(textAreaConfig.alinhamento_vertical ?? 'middle').toLowerCase()
+  const resolvedValign = ['top', 'middle', 'bottom'].includes(verticalAlign) ? verticalAlign : 'middle'
+
+  const textDirection = String(textAreaConfig.direcao_texto ?? 'horz').toLowerCase()
+  const resolvedVert = ['eaVert', 'horz', 'mongolianVert', 'vert', 'vert270', 'wordArtVert', 'wordArtVertRtl'].includes(textDirection)
+    ? textDirection
+    : 'horz'
+
+  const widthWithScale = Number.isFinite(resolvedW) ? resolvedW * (Number.isFinite(scaleWidth) ? scaleWidth / 100 : 1) : fallback.w
+  const heightWithScale = Number.isFinite(resolvedH)
+    ? resolvedH * (Number.isFinite(scaleHeight) ? scaleHeight / 100 : 1)
+    : fallback.h
+
+  return {
+    x: Number.isFinite(resolvedX) ? resolvedX : fallback.x,
+    y: Number.isFinite(resolvedY) ? resolvedY : fallback.y,
+    w: Number.isFinite(widthWithScale) && widthWithScale > 0 ? widthWithScale : fallback.w,
+    h: Number.isFinite(heightWithScale) && heightWithScale > 0 ? heightWithScale : fallback.h,
+    rotate: Number.isFinite(resolvedRotate) ? resolvedRotate : 0,
+    valign: resolvedValign,
+    vert: resolvedVert,
+    margin: [cmToPoints(topMarginCm), cmToPoints(rightMarginCm), cmToPoints(bottomMarginCm), cmToPoints(leftMarginCm)],
+  }
+}
+
+const resolveBackgroundImageBox = (layout, backgroundConfig) => {
+  const fallback = {
+    x: 0,
+    y: 0,
+    w: layout === 'LAYOUT_WIDE' ? 13.333 : 10,
+    h: 7.5,
+  }
+
+  if (!backgroundConfig || typeof backgroundConfig !== 'object') {
+    return fallback
+  }
+
+  const resolvedX = cmToInches(backgroundConfig.x_cm)
+  const resolvedY = cmToInches(backgroundConfig.y_cm)
+  const resolvedW = cmToInches(backgroundConfig.largura_cm)
+  const resolvedH = cmToInches(backgroundConfig.altura_cm)
+
+  return {
+    x: Number.isFinite(resolvedX) ? resolvedX : fallback.x,
+    y: Number.isFinite(resolvedY) ? resolvedY : fallback.y,
+    w: Number.isFinite(resolvedW) && resolvedW > 0 ? resolvedW : fallback.w,
+    h: Number.isFinite(resolvedH) && resolvedH > 0 ? resolvedH : fallback.h,
   }
 }
 
@@ -333,13 +486,18 @@ const buildFileName = () => {
 export const generateRepertoryPptx = async (songs, categoriesMap) => {
   const config = await loadPowerPointConfig()
   const settings = loadPowerPointSettings() ?? {}
+  const metadata = config.metadata ?? {}
   const layoutGlobal = config.layout_global ?? DEFAULT_CONFIG.layout_global
   const colors = layoutGlobal.cores ?? DEFAULT_CONFIG.layout_global.cores
   const fonts = layoutGlobal.fontes ?? DEFAULT_CONFIG.layout_global.fontes
   const layoutMargins = layoutGlobal.margens ?? DEFAULT_CONFIG.layout_global.margens
+  const backgroundImageConfig = layoutGlobal.imagem_fundo ?? DEFAULT_CONFIG.layout_global.imagem_fundo
+  const textAreaConfig = layoutGlobal.area_texto ?? DEFAULT_CONFIG.layout_global.area_texto
+  const coverConfig = layoutGlobal.slide_capa ?? DEFAULT_CONFIG.layout_global.slide_capa
   const styles = config.estilos_slides ?? DEFAULT_CONFIG.estilos_slides
   const openingStyle = styles.abertura ?? DEFAULT_CONFIG.estilos_slides.abertura
   const contentStyle = styles.conteudo_leitura_canto ?? DEFAULT_CONFIG.estilos_slides.conteudo_leitura_canto
+  const mergeStanzas = Boolean(contentStyle.misturar_estrofes_no_mesmo_slide)
 
   const allowedFonts = Array.isArray(fonts.familias_permitidas)
     ? fonts.familias_permitidas.map((font) => String(font))
@@ -380,17 +538,34 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
 
   const titlePosition = resolveTitlePosition(openingStyle.posicao)
   const baseAlign = resolveAlign(settings.textAlign ?? fonts.alinhamento)
-  const contentBox = resolveContentBox(pptx.layout, appliedMargins)
+  const contentBox = resolveTextAreaBox(pptx.layout, appliedMargins, textAreaConfig)
+  const backgroundImageBox = resolveBackgroundImageBox(pptx.layout, backgroundImageConfig)
 
   const applySlideBackground = (slide) => {
     slide.background = { color: appliedBackgroundColor }
     if (backgroundImageData || backgroundImagePath) {
       slide.addImage({
         ...(backgroundImageData ? { data: backgroundImageData } : { path: backgroundImagePath }),
-        x: 0,
-        y: 0,
-        w: pptx.layout === 'LAYOUT_WIDE' ? 13.333 : 10,
-        h: 7.5,
+        ...backgroundImageBox,
+      })
+    }
+  }
+
+  if (Boolean(coverConfig?.habilitar)) {
+    const coverSlide = pptx.addSlide()
+    applySlideBackground(coverSlide)
+
+    const coverTitle = String(metadata?.contexto ?? '').trim()
+    if (coverTitle) {
+      coverSlide.addText(normalizeText(coverTitle, textCase), {
+        ...titlePosition,
+        bold: Boolean(openingStyle.negrito || appliedBold),
+        italic: appliedItalic,
+        underline: appliedUnderline,
+        color: appliedHighlightColor,
+        fontFace: appliedFontFamily,
+        fontSize: appliedTitleSize,
+        align: titlePosition.align,
       })
     }
   }
@@ -405,6 +580,7 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
       bold: appliedBold,
       italic: appliedItalic,
       allowAutoWrap: Boolean(contentStyle.quebra_automatica),
+      mergeStanzas,
     })
 
     const fallbackPages = pages.length ? pages : [normalizeText(song.letter, textCase)]
@@ -433,11 +609,13 @@ export const generateRepertoryPptx = async (songs, categoriesMap) => {
         bold: appliedBold,
         italic: appliedItalic,
         underline: appliedUnderline,
-        valign: 'top',
+        valign: contentBox.valign,
         align: baseAlign,
+        vert: contentBox.vert,
+        rotate: contentBox.rotate,
         breakLine: Boolean(contentStyle.quebra_automatica),
         lineSpacingMultiple: appliedLineSpacing,
-        margin: 0,
+        margin: contentBox.margin,
       })
     })
 

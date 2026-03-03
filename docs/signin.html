@@ -11,8 +11,20 @@
         <div class="mb-3 flex justify-end">
           <button id="theme-toggle-btn" class="btn-secondary px-3 py-1.5 text-xs">Tema</button>
         </div>
-        <h1 class="text-2xl font-bold text-stone-900 dark:text-stone-100">Sign-in</h1>
-        <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">Informe seu usuário e senha para acessar o dashboard.</p>
+        <div class="mb-5 flex justify-center">
+          <img
+            src="./src/assets/img/logo_aparecida_oxford_b.png"
+            alt="Logo Aparecida Oxford"
+            class="h-[270px] w-[320px] rounded-md object-contain dark:hidden"
+          />
+          <img
+            src="./src/assets/img/logo_aparecida_oxford_T.png"
+            alt="Brasão Aparecida Oxford"
+            class="hidden h-[270px] w-[320px] rounded-md object-contain dark:block"
+          />
+        </div>
+        <h1 class="text-2xl text-center font-bold text-stone-900 dark:text-stone-100">Controle de Acesso</h1>
+        <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">Informe seu usuário e senha.</p>
 
         <form id="signin-form" class="mt-6 space-y-4" novalidate>
           <label class="block text-sm font-medium text-stone-700 dark:text-stone-200" for="username">Usuário</label>

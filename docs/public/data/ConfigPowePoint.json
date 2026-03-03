@@ -19,7 +19,7 @@
         "familia_principal": "Verdana",
         "caixa_texto": "UPPERCASE",
         "transformacao_texto": "maiusculas",
-        "alinhamento": "esquerda",
+        "alinhamento": "centro",
         "estilo": {
           "negrito": true,
           "italico": false,
@@ -27,17 +27,43 @@
         }
       },
       "margens": {
-        "top": 1,
-        "bottom": 1,
-        "left": 1,
-        "right": 1
+        "top": 0.5,
+        "bottom": 0.5,
+        "left": 0.5,
+        "right": 0.5
+      },
+      "imagem_fundo": {
+        "x_cm": 0,
+        "y_cm": 0,
+        "largura_cm": 33.87,
+        "altura_cm": 19.05
+      },
+      "area_texto": {
+        "x_cm": 0,
+        "y_cm": 0.82,
+        "largura_cm": 33.87,
+        "altura_cm": 19.05,
+        "rotacao_graus": 0,
+        "escala_altura_percent": 100,
+        "escala_largura_percent": 100,
+        "alinhamento_vertical": "centralizado",
+        "direcao_texto": "horz",
+        "margens_texto_cm": {
+          "left": 0.25,
+          "right": 0.25,
+          "top": 0.13,
+          "bottom": 0.13
+        }
+      },
+      "slide_capa": {
+        "habilitar": true
       }
     },
     "estilos_slides": {
       "abertura": {
         "tamanho_fonte": 16,
         "negrito": true,
-        "posicao": "esquerda"
+        "posicao": "centralizado"
       },
       "secao_liturgica": {
         "exemplo": ["ATO PENITENCIAL", "HINO DE LOUVOR", "OFERTÓRIO"],
@@ -50,7 +76,8 @@
         "tamanho_fonte": 54,
         "espacamento_linhas": 1.15,
         "quebra_automatica": true,
-        "letras_maiusculas": true
+        "letras_maiusculas": true,
+        "misturar_estrofes_no_mesmo_slide": false
       }
     },
     "elementos_especificos": {
