@@ -9,9 +9,9 @@
     "layout_global": {
       "proporcao_tela": "16:9",
       "cores": {
-        "fundo": "#FFFFFF",
-        "texto_principal": "#000000",
-        "destaque_secao": "#5B9BD5",
+        "fundo": "#000000",
+        "texto_principal": "#FFFFFF",
+        "destaque_secao": "#000000",
         "texto_suporte": "#757575"
       },
       "fontes": {
