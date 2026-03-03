@@ -1,0 +1,16 @@
+[
+  { "id": 1, "name": "Entrada", "order": 1 },
+  { "id": 2, "name": "Ato Penitencial", "order": 2 },
+  { "id": 3, "name": "Glória", "order": 3 },
+  { "id": 4, "name": "Salmo", "order": 4 },
+  { "id": 5, "name": "Aclamação", "order": 5 },
+  { "id": 6, "name": "Ofertório", "order": 6 },
+  { "id": 7, "name": "Santo", "order": 7 },
+  { "id": 8, "name": "Cordeiro", "order": 8 },
+  { "id": 9, "name": "Comunhão", "order": 9 },
+  { "id": 10, "name": "Pós-Comunhão", "order": 10 },
+  { "id": 11, "name": "Ação de Graças", "order": 11 },
+  { "id": 12, "name": "Envio", "order": 12 },
+  { "id": 13, "name": "Adoração", "order": 13 },
+  { "id": 14, "name": "Mariano", "order": 14 }
+]

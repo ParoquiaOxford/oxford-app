@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "idCategory": 1,
+    "title": "Canto de Entrada",
+    "letter": "Senhor, quem entrará no santuário pra te louvar?\nSenhor, quem entrará no santuário pra te louvar?\n\nQuem tem as mãos limpas e o coração puro\nQuem não é vaidoso e sabe amar\nQuem tem as mãos limpas e o coração puro\nQuem não é vaidoso e sabe amar\n\nSenhor, eu quero entrar no santuário pra te louvar\nSenhor, eu quero entrar no santuário pra te louvar\n\nÓ dá-me mãos limpas e um coração puro\nArranca a vaidade ensina-me a amar\nÓ dá-me mãos limpas e um coração puro\nArranca a vaidade ensina-me a amar\n\nSenhor, já posso entrar no santuário pra te louvar\nSenhor, já posso entrar no santuário pra te louvar\n\nTeu sangue me lava, teu fogo me queima\nO Espírito Santo inunda meu ser\nTeu sangue me lava, teu fogo me queima\nO Espírito Santo inunda meu ser"
+  },
+  {
+    "id": 2,
+    "idCategory": 2,
+    "title": "Senhor, Tende Piedade",
+    "letter": "SENHOR QUE VIESTE SALVAR\nOS CORAÇÕES ARREPENDIDOS\nTENDE PIEDADE DE NÓS\n\nCRISTO QUE VIESTE CHAMAR\nOS PECADORES HUMILHADOS\nTENDE PIEDADE DE NÓS\n\nSENHOR QUE INTERCEDEIS POR NÓS\nJUNTO Á DEUS PAI QUE NOS PERDOA\nTENDE PIEDADE DE NÓS"
+  },
+  {
+    "id": 3,
+    "idCategory": 4,
+    "title": "Salmo Responsorial",
+    "letter": "SOBRE NÓS VENHA, SENHOR, A VOSSA GRAÇA,\nVENHA A VOSSA SALVAÇÃO! (BIS)\n\nPOIS RETA É A PALAVRA DO SENHOR,\nE TUDO O QUE ELE FAZ MERECE FÉ.\nDEUS AMA O DIREITO E A JUSTIÇA,\nTRANSBORDA EM TODA A TERRA A SUA GRAÇA.\n\nMAS O SENHOR POUSA O OLHAR SOBRE OS QUE O TEMEM,\nE QUE CONFIAM ESPERANDO EM SEU AMOR,\nPARA DA MORTE LIBERTAR AS SUAS VIDAS\nE ALIMENTÁ-LOS QUANDO É TEMPO DE PENÚRIA.\n\nNO SENHOR NÓS ESPERAMOS CONFIANTES,\nPORQUE ELE É NOSSO AUXÍLIO E PROTEÇÃO!\nSOBRE NÓS VENHA, SENHOR, A VOSSA GRAÇA,\nDA MESMA FORMA QUE EM VÓS NÓS ESPERAMOS!"
+  },
+  {
+    "id": 4,
+    "idCategory": 6,
+    "title": "Pão e Vinho",
+    "letter": "A TI, MEU DEUS, ELEVO MEU CORAÇÃO\nELEVO AS MINHAS MÃOS, MEU OLHAR, MINHA VOZ\n\nA TI, MEU DEUS, EU QUERO OFERECER\nMEUS PASSOS E MEU VIVER\nMEUS CAMINHOS MEU SOFRER\n\nA TUA TERNURA, SENHOR, VEM ME ABRAÇAR\nE A TUA BONDADE INFINITA, ME PERDOAR\nVOU SER O TEU SEGUIDOR, E TE DAR O MEU CORAÇÃO\nEU QUERO SENTIR O CALOR DE TUAS MÃOS"
+  },
+  {
+    "id": 5,
+    "idCategory": 9,
+    "title": "Pão da Vida",
+    "letter": "Eu te adoro, ó Cristo, Deus no santo altar,\nno teu sacramento vivo a palpitar!\nDou-te, sem partilha, vida e coração;\npois de amor me inflamo na contemplação.\n\nDos teus sofrimentos é memorial,\neste pão da vida, pão celestial;\ndele eu sempre queira mais me alimentar,\nsentir-lhe a doçura divinal sem par.\n\nTua divindade não se viu na cruz,\nnem a humanidade vê-se aqui, Jesus;\nambas eu confesso como o bom ladrão,\ne um lugar espero na eternal mansão."
+  },
+  {
+    "id": 6,
+    "idCategory": 12,
+    "title": "Ide em Paz",
+    "letter": "Que santidade de vida\nQue homens devemos ser\nPois se tudo no céu e na Terra\nSenhor chamará\n\nQue respeito para com Deus\nQue luta devemos travar\nNo novo céu e na nova Terra\nIremos morar\n\nSomos, Senhor, Tua igreja\nQue aguarda e apressa Tua vinda gloriosa\nQue o Senhor nos encontre em paz\nPuros e santos\n\nQue é feito da sua promessa?\nPerguntam e zombam de Deus\n\nMas o Senhor virá\nEle não tardará\nQue eu seja santo, santo, santo\nPois Deus é santo, santo, santo\n\nQue a santidade da minha vida\nApresse o Senhor e Ele logo virá"
+  },
+  {
+    "id": 7,
+    "idCategory": 14,
+    "title": "Mãe Aparecida",
+    "letter": "ENSINA O TEU POVO A REZAR\nMARIA MÃE DE JESUS\nQUE UM DIA O TEU POVO DESPERTA\nE NA CERTA VAI VER A LUZ\nQUE UM DIA O TEU POVO SE ANIMA\nE CAMINHA COM TEU JESUS.\n\nMARIA DE JESUS CRISTO,\nMARIA DE DEUS MARIA MULHER,\nENSINA A TEU POVO O TEU JEITO DE SER\nO QUE DEUS QUISER (BIS)\n\nMARIA SENHORA NOSSA,\nMARIA DO POVO, POVO DE DEUS\nENSINA O TEU JEITO PERFEITO\nDE SEMPRE ESCUTAR TEU DEUS (BIS)"
+  }
+]
